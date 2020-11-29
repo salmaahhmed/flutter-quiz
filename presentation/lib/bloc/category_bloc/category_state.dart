@@ -5,8 +5,6 @@ import 'package:meta/meta.dart';
 @immutable
 abstract class CategoryState extends BlocStateBase {
   CategoryState([Iterable props]);
-
-  /// Copy object for use in action
   CategoryState getStateCopy();
 }
 

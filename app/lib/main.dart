@@ -1,32 +1,43 @@
+import 'package:quiz/di/app_module.dart';
 import 'package:quiz/injector.dart';
 import 'package:quiz/pages/home_page.dart';
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:presentation/presentation_index.dart';
+import 'package:quiz/services/index.dart';
 import 'package:remote/remote.dart';
 
+import 'routing/router.dart';
+
 void main() {
-  runApp(MyApp());
+  runApp(Injector(modules: [
+    AppModule(),
+    RemoteModule(),
+    DataModule(),
+    DomainModule(),
+    PresentationModule(),
+  ], child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return Injector(
-      modules: [
-        RemoteModule(),
-        DataModule(),
-        DomainModule(),
-        PresentationModule(),
-      ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: MyHomePage(title: 'Flutter Demo Home Page'),
+    return MaterialApp(
+      navigatorKey:
+          Injector.of(context).inject<NavigationService>().navigatorKey,
+      // onUnknownRoute: (settings) => MaterialPageRoute(
+      //     builder: (context) => Scaffold(
+      //           body: Center(
+      //             child: Text('Unknown path'),
+      //           ),
+      //         )),
+      onGenerateRoute: generateRoute,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }

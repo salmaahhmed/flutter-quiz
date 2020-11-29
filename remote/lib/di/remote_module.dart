@@ -6,5 +6,7 @@ class RemoteModule extends Module {
   @override
   void configure(GetIt get) => get
     ..registerFactory<CategoryRemoteDataSource>(
-        () => CategoriesRemoteDataSourceImpl(CategoryRemoteMapper()));
+        () => CategoriesRemoteDataSourceImpl(CategoryRemoteMapper()))
+    ..registerFactory<QuestionRemoteDataSource>(
+        () => QuestionsRemoteDataSourceImpl(QuestionMapperRemote()));
 }

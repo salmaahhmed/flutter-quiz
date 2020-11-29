@@ -6,5 +6,7 @@ class DataModule extends Module {
   @override
   void configure(GetIt get) => get
     ..registerFactory<TriviaCategoryRepository>(
-        () => CategoryRepositoryImp(get(), CategoryMapper()));
+        () => CategoryRepositoryImp(get(), CategoryMapper()))
+    ..registerFactory<TriviaQuestionRepository>(() =>
+        QuestionRepositoryImpl(get(), QuestionMapper(), CategoryMapper()));
 }

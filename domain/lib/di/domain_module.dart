@@ -6,5 +6,6 @@ class DomainModule extends Module {
   @override
   void configure(GetIt get) => get
     ..registerFactory(
-        () => GetCategoriesUseCase(get<TriviaCategoryRepository>()));
+        () => GetCategoriesUseCase(get<TriviaCategoryRepository>()))
+    ..registerFactory(() => GetCategoryQuestionsUseCase(get()));
 }

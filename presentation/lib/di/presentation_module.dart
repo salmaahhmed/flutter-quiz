@@ -3,5 +3,7 @@ import 'package:presentation/presentation_index.dart';
 
 class PresentationModule extends Module {
   @override
-  void configure(GetIt get) => get..registerFactory(() => CategoryBloc(get()));
+  void configure(GetIt get) => get
+    ..registerFactory(() => CategoryBloc(get()))
+    ..registerFactory(() => QuestionBloc(get()));
 }
