@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clean_architecture_base/clean_architecture_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:presentation/presentation_index.dart';
@@ -23,8 +24,8 @@ class _QuestionPageState extends State<QuestionPage> {
   QuestionBloc questionBloc;
   NavigationService service;
   List<QuestionEntity> questions = [];
-  StreamController<List<String>> answersController =
-      StreamController<List<String>>();
+  BehaviorSubject<List<String>> answersController =
+      BehaviorSubject<List<String>>();
   int score;
 
   initbloc() {
@@ -44,6 +45,16 @@ class _QuestionPageState extends State<QuestionPage> {
         stream: questionBloc.currentQuestionIndexStream,
         builder: (context, snapshot) {
           return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                if (snapshot.data == 9) {
+                  Navigator.pop(context);
+                } else
+                  questionBloc
+                      .changeQuestionIndex(questionBloc.currentQuestionVal + 1);
+              },
+              child: Text('next'),
+            ),
             body: BlocListener(
               bloc: questionBloc,
               listener: (ctx, state) {
@@ -58,26 +69,65 @@ class _QuestionPageState extends State<QuestionPage> {
               child: BlocBuilder(
                   bloc: questionBloc,
                   builder: (context, state) {
-                    return Center(
-                      child: Column(
-                        children: [
-                          Text(questions[snapshot.data].question),
-                          Expanded(
-                            child: StreamBuilder(
-                                stream: answersController.stream,
-                                builder: (context, answerSnapshot) {
-                                  return ListView.builder(
-                                      itemCount: answerSnapshot.data.length,
-                                      itemBuilder: (ctx, index) {
-                                        return Container(
-                                            child: Text(
-                                                answerSnapshot.data[index]));
-                                      });
-                                }),
-                          )
-                        ],
-                      ),
-                    );
+                    if (state is GetQuestionsSuccess) {
+                      return Container(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(questions[snapshot.data].question),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                child: StreamBuilder(
+                                    initialData: [],
+                                    stream: answersController.stream,
+                                    builder: (context, answerSnapshot) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: GridView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: answerSnapshot.data.length,
+                                          itemBuilder: (ctx, index) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Container(
+                                                      child: Text(answerSnapshot
+                                                          .data[index])),
+                                                  OutlineButton(
+                                                    onPressed: () {},
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                            childAspectRatio: 5,
+                                            crossAxisCount: 2,
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
                   }),
             ),
           );

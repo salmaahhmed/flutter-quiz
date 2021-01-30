@@ -16,10 +16,12 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       _currentQuestionIndexController.stream;
   void changeQuestionIndex(final int index) =>
       _currentQuestionIndexController.sink.add(index);
+  int get currentQuestionVal => _currentQuestionIndexController.value;
 
-  final StreamController<int> _scoreController = StreamController<int>();
+  final BehaviorSubject<int> _scoreController = BehaviorSubject<int>();
   Stream<int> get currentScore => _scoreController.stream;
   void updateScore(final int index) => _scoreController.sink.add(index);
+  int get currentScoreVal => _scoreController.value;
 
   @override
   QuestionState get initialState => GetQuestionsLoading();
