@@ -24,8 +24,6 @@ class _QuestionPageState extends State<QuestionPage> {
   QuestionBloc questionBloc;
   NavigationService service;
   List<QuestionEntity> questions = [];
-  StreamController<List<String>> answersController =
-      StreamController<List<String>>.broadcast();
   BehaviorSubject<String> selectedAnswer = BehaviorSubject<String>();
 
   initbloc() {
@@ -40,7 +38,7 @@ class _QuestionPageState extends State<QuestionPage> {
   @override
   void dispose() {
     selectedAnswer.close();
-    answersController.close();
+
     super.dispose();
   }
 
@@ -58,10 +56,8 @@ class _QuestionPageState extends State<QuestionPage> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (ctx) => Container()));
                 } else {
-                  setState(() {
-                    questionBloc.changeQuestionIndex(
-                        questionBloc.currentQuestionIndexStream.value + 1);
-                  });
+                  questionBloc.changeQuestionIndex(
+                      questionBloc.currentQuestionIndexStream.value + 1);
                 }
               },
               label: Text('Next')),
@@ -70,9 +66,6 @@ class _QuestionPageState extends State<QuestionPage> {
             listener: (ctx, state) {
               if (state is GetQuestionsSuccess) {
                 questions = state.questionLs;
-                answersController.sink.add(
-                    questions[snapshot.data].incorrectAnswers
-                      ..add(questions[snapshot.data].correctAnswer));
               } else if (state is GetQuestionsFail)
                 Toast.show(state.error, context);
             },
@@ -91,40 +84,42 @@ class _QuestionPageState extends State<QuestionPage> {
                         ),
                         Text(questions[snapshot.data].question),
                         Expanded(
-                          child: StreamBuilder<List<String>>(
-                            stream: answersController.stream,
-                            builder: (context,
-                                AsyncSnapshot<List<String>> answerSnapshot) {
-                              if (answerSnapshot.data == null ||
-                                  answerSnapshot.data.isEmpty) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: answerSnapshot.data.length,
-                                  itemBuilder: (ctx, index) {
-                                    return StreamBuilder<String>(
-                                        initialData: answerSnapshot.data[0],
-                                        stream: selectedAnswer,
-                                        builder: (context, radioSnapshot) {
-                                          return RadioListTile(
-                                            title: Text(
-                                                answerSnapshot.data[index]),
-                                            value: answerSnapshot.data[index],
-                                            selected:
-                                                answerSnapshot.data[index] ==
-                                                    radioSnapshot.data,
-                                            groupValue: radioSnapshot.data,
-                                            onChanged: (val) {
-                                              selectedAnswer.sink.add(val);
-                                            },
-                                          );
-                                        });
-                                  },
-                                );
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: (questions[snapshot.data]
+                                        .incorrectAnswers +
+                                    [questions[snapshot.data].correctAnswer])
+                                .length,
+                            itemBuilder: (ctx, index) {
+                              return StreamBuilder<String>(
+                                stream: selectedAnswer,
+                                builder: (context, radioSnapshot) {
+                                  return RadioListTile(
+                                    title: Text((questions[snapshot.data]
+                                            .incorrectAnswers +
+                                        [
+                                          questions[snapshot.data].correctAnswer
+                                        ])[index]),
+                                    value: (questions[snapshot.data]
+                                            .incorrectAnswers +
+                                        [
+                                          questions[snapshot.data].correctAnswer
+                                        ])[index],
+                                    selected: (questions[snapshot.data]
+                                                .incorrectAnswers +
+                                            [
+                                              questions[snapshot.data]
+                                                  .correctAnswer
+                                            ])[index] ==
+                                        radioSnapshot.data,
+                                    groupValue: radioSnapshot.data,
+                                    onChanged: (val) {
+                                      selectedAnswer.sink.add(val);
+                                    },
+                                  );
+                                },
+                              );
                             },
                           ),
                         ),
