@@ -1,4 +1,6 @@
-class QuestionEntity {
+import 'package:clean_architecture_base/clean_architecture_base.dart';
+
+class QuestionEntity extends Equatable {
   QuestionEntity({
     this.category,
     this.type,
@@ -33,6 +35,10 @@ class QuestionEntity {
         "correct_answer": correctAnswer,
         "incorrect_answers": List<dynamic>.from(incorrectAnswers.map((x) => x)),
       };
+
+  @override
+  List<Object> get props =>
+      [category, typeValues, difficultyValues, question, correctAnswer];
 }
 
 enum Difficulty { EASY, MEDIUM }

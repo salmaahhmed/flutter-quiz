@@ -1,4 +1,6 @@
-class TriviaCategoryEntity {
+import 'package:clean_architecture_base/clean_architecture_base.dart';
+
+class TriviaCategoryEntity extends Equatable {
   TriviaCategoryEntity({
     this.id,
     this.name,
@@ -17,4 +19,7 @@ class TriviaCategoryEntity {
         "id": id,
         "name": name,
       };
+
+  @override
+  List<Object> get props => [id, name];
 }

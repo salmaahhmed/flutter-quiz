@@ -12,7 +12,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
 
   final BehaviorSubject<int> _currentQuestionIndexController =
       BehaviorSubject<int>.seeded(0);
-  Stream<int> get currentQuestionIndexStream =>
+  BehaviorSubject<int> get currentQuestionIndexStream =>
       _currentQuestionIndexController.stream;
   void changeQuestionIndex(final int index) =>
       _currentQuestionIndexController.sink.add(index);
