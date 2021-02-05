@@ -49,88 +49,103 @@ class _QuestionPageState extends State<QuestionPage> {
     return StreamBuilder(
       stream: questionBloc.currentQuestionIndexStream,
       builder: (context, snapshot) {
-        return Scaffold(
-          floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                if (snapshot.data == 9) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (ctx) => Container()));
-                } else {
-                  questionBloc.changeQuestionIndex(
-                      questionBloc.currentQuestionIndexStream.value + 1);
-                }
-              },
-              label: Text('Next')),
-          body: BlocListener(
-            bloc: questionBloc,
-            listener: (ctx, state) {
-              if (state is GetQuestionsSuccess) {
-                questions = state.questionLs;
-              } else if (state is GetQuestionsFail)
-                Toast.show(state.error, context);
-            },
-            child: BlocBuilder(
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else
+          return Scaffold(
+            floatingActionButton: FloatingActionButton.extended(
+                onPressed: () {
+                  if (snapshot.data == 9) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (ctx) => Container()));
+                  } else {
+                    questionBloc.changeQuestionIndex(
+                        questionBloc.currentQuestionIndexStream.value + 1);
+                  }
+                },
+                label: Text('Next')),
+            body: BlocListener(
               bloc: questionBloc,
-              builder: (context, state) {
-                return Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        left: 40, right: 40, top: 200, bottom: 20),
-                    child: Column(
-                      children: [
-                        Text('${snapshot.data + 1}/10'),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(questions[snapshot.data].question),
-                        Expanded(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: (questions[snapshot.data]
-                                        .incorrectAnswers +
-                                    [questions[snapshot.data].correctAnswer])
-                                .length,
-                            itemBuilder: (ctx, index) {
-                              return StreamBuilder<String>(
-                                stream: selectedAnswer,
-                                builder: (context, radioSnapshot) {
-                                  return RadioListTile(
-                                    title: Text((questions[snapshot.data]
+              listener: (ctx, state) {
+                if (state is GetQuestionsSuccess) {
+                  questions = state.questionLs;
+                } else if (state is GetQuestionsFail)
+                  Toast.show(state.error, context);
+              },
+              child: BlocBuilder(
+                bloc: questionBloc,
+                builder: (context, state) {
+                  if (state is GetQuestionsLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: 40, right: 40, top: 200, bottom: 20),
+                        child: Column(
+                          children: [
+                            Text(
+                                '${snapshot.data == null ? '' : snapshot.data + 1}/10'),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(questions[snapshot.data].question),
+                            Expanded(
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: (questions[snapshot.data]
                                             .incorrectAnswers +
                                         [
                                           questions[snapshot.data].correctAnswer
-                                        ])[index]),
-                                    value: (questions[snapshot.data]
-                                            .incorrectAnswers +
-                                        [
-                                          questions[snapshot.data].correctAnswer
-                                        ])[index],
-                                    selected: (questions[snapshot.data]
+                                        ])
+                                    .length,
+                                itemBuilder: (ctx, index) {
+                                  return StreamBuilder<String>(
+                                    stream: selectedAnswer,
+                                    builder: (context, radioSnapshot) {
+                                      return RadioListTile(
+                                        title: Text((questions[snapshot.data]
                                                 .incorrectAnswers +
                                             [
                                               questions[snapshot.data]
                                                   .correctAnswer
-                                            ])[index] ==
-                                        radioSnapshot.data,
-                                    groupValue: radioSnapshot.data,
-                                    onChanged: (val) {
-                                      selectedAnswer.sink.add(val);
+                                            ])[index]),
+                                        value: (questions[snapshot.data]
+                                                .incorrectAnswers +
+                                            [
+                                              questions[snapshot.data]
+                                                  .correctAnswer
+                                            ])[index],
+                                        selected: (questions[snapshot.data]
+                                                    .incorrectAnswers +
+                                                [
+                                                  questions[snapshot.data]
+                                                      .correctAnswer
+                                                ])[index] ==
+                                            radioSnapshot.data,
+                                        groupValue: radioSnapshot.data,
+                                        onChanged: (val) {
+                                          selectedAnswer.sink.add(val);
+                                        },
+                                      );
                                     },
                                   );
                                 },
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                      ),
+                    );
+                },
+              ),
             ),
-          ),
-        );
+          );
       },
     );
   }
